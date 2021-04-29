@@ -1,4 +1,5 @@
 <template>
+  <h3 style="margin-left: 2rem">Loading...</h3>
 </template>
 
 <script>
@@ -13,10 +14,10 @@ export default {
     appData: Object
   },
   emits: [
+    'fetched'
     // todo: errors? emit or data()?
     // todo: app data, but don't cause recursion
     //       remember that app data can update elsewhere too
-    // todo: book data
   ],
   data () {
     return {
@@ -53,7 +54,7 @@ export default {
             xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
           }
         })
-        .done(function(response) {
+        .done(function() {
           console.log('Finished updating book app data');
         })
         .fail(function(jqXHR, textStatus) {
@@ -64,7 +65,7 @@ export default {
       else {
         console.warn('Unable to update book app data');
       }
-    }
+    },
     createAppData: function() {
       var self = this;
       return new Promise((resolve, reject) => {
@@ -130,14 +131,14 @@ export default {
             if(response.result.nextPageToken) {
               console.warn('WARNING: There are multiple app data files for this book');
             }
-            self.fetchBookAppData().then((value) => {
+            self.fetchAppData().then((value) => {
               // return book's app data
               resolve(value);
             });
           }
           else {
             console.log('No app data file found, creating...');
-            self.createBookAppData().then((value) => {
+            self.createAppData().then((value) => {
               // return nothing; book will use defult values
               // but still don't want to resolve until the new file is created, for update calls
               self.appData_docID = value;
@@ -174,14 +175,12 @@ export default {
       });
     },
     openBookFile: function() {
-      var appDataPromise = this.getOrCreateBookAppData();
+      var appDataPromise = this.getOrCreateAppData();
       var bookDataPromise = this.fetchDriveFile();
       Promise.all([appDataPromise, bookDataPromise]).then((values) => {
         const appData = values[0];
         const bookData = values[1];
-        console.log(appData);
-        console.log(bookData);
-        // todo: emit these values
+        this.$emit('fetched',bookData,appData);
       });
     }
   }
