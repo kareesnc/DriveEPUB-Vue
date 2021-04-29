@@ -9,8 +9,8 @@ import $ from 'jquery'
 export default {
   name: 'DriveFile',
   props: {
-    doc_id: String,
-    app_data: Object
+    docID: String,
+    appData: Object
   },
   emits: [
     // todo: errors? emit or data()?
@@ -25,10 +25,10 @@ export default {
     }
   },
   watch: {
-    app_data: {
+    appData: {
       deep: true,
       handler(state) {
-        console.log('new app_data');
+        console.log('new appData');
         console.log(state);
         // todo: decide when to call updateAppData
         // if on every update, must limit those updates elsewhere
@@ -43,12 +43,12 @@ export default {
     updateAppData: function() {
       // ensure app data doc ID and data exist
       const self = this;
-      if(self.appData_docID && self.app_data && self.app_data.cfi) {
+      if(self.appData_docID && self.appData && self.appData.cfi) {
         console.log('Saving book app data...');
         $.ajax({
           method: 'PATCH',
           url: 'https://www.googleapis.com/upload/drive/v3/files/' + self.appData_docID + '?uploadType=media',
-          data: JSON.stringify(self.app_data),
+          data: JSON.stringify(self.appData),
           beforeSend: function(xhr) {
             xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
           }
@@ -69,7 +69,7 @@ export default {
       var self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.create({
-          name: self.doc_id+'.epubcfi',
+          name: self.docID+'.epubcfi',
           mimeType: 'application/json',
           parents: ['appDataFolder']
         }).then(function (response) {
@@ -120,7 +120,7 @@ export default {
       var self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.list({
-          q: "name: '"+self.doc_id+".epubcfi'",
+          q: "name: '"+self.docID+".epubcfi'",
           spaces: 'appDataFolder',
           fields: 'nextPageToken, files(id, name)',
           pageSize: 1
@@ -155,7 +155,7 @@ export default {
       var self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.get({
-          fileId: self.doc_id,
+          fileId: self.docID,
           alt: 'media'
         }).then(function (response) {
           if (response.body && response.headers['Content-Type'] == 'application/epub+zip') {
