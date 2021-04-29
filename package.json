@@ -35,9 +35,6 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "ignorePatterns": [
-      "gapi.js"
-    ],
     "rules": {}
   },
   "browserslist": [
