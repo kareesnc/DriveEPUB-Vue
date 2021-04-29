@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <a :href="demoFile">Demo file: {{demoFile}}</a>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -36,6 +37,11 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data () {
+    return {
+      demoFile: process.env.VUE_APP_DEMO_FILE
+    }
   }
 }
 </script>
