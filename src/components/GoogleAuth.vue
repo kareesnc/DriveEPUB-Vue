@@ -16,18 +16,19 @@ export default {
   data () {
     return {
       apiKey: process.env.VUE_APP_DRIVE_API_KEY,
-      clientId: process.env.VUE_APP_OAUTH_CLIENT_ID
+      clientId: process.env.VUE_APP_OAUTH_CLIENT_ID,
+      doc_id: '',
+      app_data: {
+        'cfi': '',
+        'font_family': '',
+        'font_size': '',
+        'line_height': ''
+      }
     }
   },
-  mounted: function() {
-    // load in the JS Google API auth functions
+  created: function() {
     const self = this;
-    let gapiScript = document.createElement('script');
-    gapiScript.setAttribute('src', 'https://apis.google.com/js/api.js');
-    gapiScript.onload = () => {
-      gapi.load('client:auth2', self.initClient);
-    };
-    document.head.appendChild(gapiScript);
+    gapi.load('client:auth2', self.initClient);
   },
   methods: {
     initClient: function() {
