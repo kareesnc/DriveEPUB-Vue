@@ -409,7 +409,7 @@ export default {
     padding: 15px;
   }
   .modal-footer {
-    margin-top: 15px;
+    padding: 15px;
   }
   .modal .btn {
     padding: 5px;
