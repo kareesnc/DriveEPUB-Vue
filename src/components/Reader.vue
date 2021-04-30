@@ -250,9 +250,9 @@ export default {
       if(this.appData && this.appData.fontFamily && this.appData.fontSize && this.appData.lineHeight) {
         this.book.rendition.themes.default({ 
           'p': { 
-            'font-family': this.appData.fontFamily,
-            'font-size': this.appData.fontSize,
-            'line-height': this.appData.lineHeight
+            'font-family': this.appData.fontFamily+' !important',
+            'font-size': this.appData.fontSize+' !important',
+            'line-height': this.appData.lineHeight+' !important'
           }
         });
       }
