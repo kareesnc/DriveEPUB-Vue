@@ -58,6 +58,8 @@ export default {
     else {
       console.warn('Could not get document ID from URL state');
     }
+    // Automatically save location every minute
+    this.interval = setInterval(this.saveAppDataFile, 60000);
   },
   methods: {
     fetchDemoBook: function() {
@@ -80,7 +82,10 @@ export default {
       this.appData[property] = value;
     },
     saveAppDataFile: function() {
+      // TODO: There seems to be a bug where sometimes the saved location isn't exactly where you were
+      // Chapter starts seem ok, but not always later pages. Could it be related to increased font size?
       if(this.$refs.driveHandle) {
+        console.log('Saving app data...');
         this.$refs.driveHandle.updateAppData();
       }
       else {
