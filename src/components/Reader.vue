@@ -1,7 +1,7 @@
 <template>
   <h3 v-if="!rendered" style="margin-left: 2rem; position: absolute;">Loading...</h3>
   <div id="book" :class="{'rendered': rendered}">
-    <div id="toc" :class="{'expanded': tocOpen}">
+    <div id="toc">
       <button class="btn" @click.prevent="toggleToc" title="Open table of contents">
         <svg class="bi bi-list" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 013 11h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 7h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 3h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z" clip-rule="evenodd"/>
@@ -17,7 +17,7 @@
           <path d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081h1.244zm2.7-7.923L6.34 9.314H3.51l1.4-4.156h.034zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525z"/>
         </svg>
       </button>
-      <div id="tocList" v-if="tocOpen">
+      <div id="tocList">
         <a 
           href="#" 
           v-for="chapter in tocList" 
@@ -28,7 +28,7 @@
         </a>
       </div>
     </div>
-    <div id="bookContent" :class="{'expanded': !tocOpen}">
+    <div id="bookContent">
       <div id="viewer"></div>
       <div id="navBtns">
         <button class="btn btn-light" @click.prevent="goLeft" :disabled="disableLeft">
@@ -56,7 +56,7 @@
         <p style="margin-top: 0">This will be saved along with your reading progress for this book.</p>
         <div class="form-group">
           <label>Select a font:</label>
-          <select>
+          <select v-model="fontFamily">
             <option value="Verdana">Verdana (sans-serif)</option>
             <option value="Georgia">Georgia (serif)</option>
             <option value="Courier New">Courier New (mono)</option>
@@ -64,25 +64,25 @@
         </div>
         <div class="form-group">
           <label>Or enter a custom font:</label>
-          <input type="text" />
+          <input type="text" v-model="fontFamilyCustom" />
         </div>
         <div class="form-group">
           <label>Font size:</label>
-          <input type="number" value="1.5" />
+          <input type="number" v-model="fontSize" />
         </div>
         <div class="form-group">
           <label>Line height:</label>
-          <input type="number" value="1.5" />
+          <input type="number" v-model="lineHeight" />
         </div>
         <div class="form-group">
           <label>Size type:</label>
-          <label><input type="radio" name="sizeType" value="em" checked /> em</label>
-          <label><input type="radio" name="sizeType" value="px" /> px</label>
+          <label><input type="radio" name="sizeType" value="em" v-model="sizeType" /> em</label>
+          <label><input type="radio" name="sizeType" value="px" v-model="sizeType" /> px</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn">Update font</button>
-        <button class="btn">Clear font</button>
+        <button class="btn" @click.prevent="setFont">Set font</button>
+        <button class="btn" @click.prevent="clearFont">Clear font</button>
       </div>
     </div>
   </div>
@@ -108,11 +108,14 @@ export default {
       rendition: null,
       tocList: null,
       rendered: false,
-      tocOpen: false,
-      fontOpen: false,
       disableLeft: true,
       disableRight: true,
-      disableSave: false
+      disableSave: false,
+      fontFamily: 'Verdana',
+      fontFamilyCustom: '',
+      fontSize: '1.5',
+      lineHeight: '1.5',
+      sizeType: 'em'
     }
   },
   mounted: function() {
@@ -124,9 +127,9 @@ export default {
       }
     });
     // Modal close functions
-    $(".modal .close").on("click",this.closeModals);
-    $("#modal-backdrop").on("click",function(e){
-      if(e.target.id=="modal-backdrop") {
+    $('.modal .close').on('click',this.closeModals);
+    $('#modal-backdrop').on('click',function(e){
+      if(e.target.id=='modal-backdrop') {
         self.closeModals();
       }
     });
@@ -134,15 +137,15 @@ export default {
   methods: {
     openBook: function() {
       this.book = ePub();
-      this.book.open(this.bookData, "binary");
+      this.book.open(this.bookData, 'binary');
       // Set height/width of the viewer
-      const width = document.getElementById("bookContent").offsetWidth-10; // ??? Chrome
-      const height = document.getElementById("bookContent").offsetHeight-60; // save room for nav buttons
+      const width = document.getElementById('bookContent').offsetWidth-10; // ??? Chrome
+      const height = document.getElementById('bookContent').offsetHeight-60; // save room for nav buttons
       // Render book
-      this.rendition = this.book.renderTo("viewer", {
-        width: width+"px",
-        height: height+"px",
-        spread: "always"
+      this.rendition = this.book.renderTo('viewer', {
+        width: width+'px',
+        height: height+'px',
+        spread: 'always'
       });
       if(this.appData && this.appData.cfi) {
         this.rendition.display(this.appData.cfi);
@@ -167,29 +170,29 @@ export default {
       });
 
       // Handle relocates
-      this.rendition.on("relocated", function(location) {
+      this.rendition.on('relocated', function(location) {
           self.relocated(location);
       });
 
-      this.rendition.on("layout", function (layout) {
-        let viewer = document.getElementById("viewer");
+      this.rendition.on('layout', function (layout) {
+        let viewer = document.getElementById('viewer');
         if (layout.spread) {
-          viewer.classList.remove("single");
+          viewer.classList.remove('single');
         } else {
-          viewer.classList.add("single");
+          viewer.classList.add('single');
         }
       });
 
       // Handle unload
-      window.addEventListener("unload", function() {
+      window.addEventListener('unload', function() {
         self.destroyBook();
       });
     },
     bookPostLoad: function() {
       // Add book title to window title
       const title = this.book.package.metadata.title;
-      if(!document.title.includes(" - "+title)) {
-          document.title += " - "+title;
+      if(!document.title.includes(' - '+title)) {
+          document.title += ' - '+title;
       }
 
       // Add key listeners
@@ -201,11 +204,11 @@ export default {
           this.goRight();
         }
       };
-      this.rendition.on("keyup", keyListener);
-      $(document).on("keyup", keyListener);
+      this.rendition.on('keyup', keyListener);
+      $(document).on('keyup', keyListener);
     },
     goLeft: function() {
-      if(this.book.package.metadata.direction === "rtl") {
+      if(this.book.package.metadata.direction === 'rtl') {
         this.rendition.next();
       }
       else {
@@ -213,7 +216,7 @@ export default {
       }
     },
     goRight: function() {
-      if(this.book.package.metadata.direction === "rtl") {
+      if(this.book.package.metadata.direction === 'rtl') {
         this.rendition.prev();
       }
       else {
@@ -222,7 +225,7 @@ export default {
     },
     relocated: function(location) {
       // Enable/disable previous/next buttons when at start/end of book
-      if(this.book.package.metadata.direction === "rtl") {
+      if(this.book.package.metadata.direction === 'rtl') {
         this.disableLeft = location.atEnd;
         this.disableRight = location.atStart;
       }
@@ -246,25 +249,35 @@ export default {
     applyFont: function() {
       if(this.appData && this.appData.fontFamily && this.appData.fontSize && this.appData.lineHeight) {
         this.book.rendition.themes.default({ 
-          "p": { 
-            "font-family": this.appData.fontFamily,
-            "font-size": this.appData.fontSize,
-            "line-height": this.appData.lineHeight
+          'p': { 
+            'font-family': this.appData.fontFamily,
+            'font-size': this.appData.fontSize,
+            'line-height': this.appData.lineHeight
           }
         });
       }
     },
-    setFont: function(family,size,lineHeight) {
-      this.updateAppDataContent('fontFamily',family);
-      this.updateAppDataContent('fontSize',size);
-      this.updateAppDataContent('lineHeight',lineHeight);
+    setFont: function() {
+      var font = this.fontFamily;
+      if(this.fontFamilyCustom) {
+        font = this.fontFamilyCustom;
+      }
+      this.updateAppDataContent('fontFamily',font);
+      this.updateAppDataContent('fontSize',this.fontSize+this.sizeType);
+      this.updateAppDataContent('lineHeight',this.lineHeight+this.sizeType);
       this.applyFont();
+      // Update app data immediately with new font data
+      this.disableSave = true;
+      this.$emit('saveAppDataFile');
     },
     clearFont: function() {
       this.updateAppDataContent('fontFamily','');
       this.updateAppDataContent('fontSize','');
       this.updateAppDataContent('lineHeight','');
       this.refreshBook();
+      // Update app data immediately to remove font data
+      this.disableSave = true;
+      this.$emit('saveAppDataFile');
     },
     refreshBook: function() {
       this.destroyBook();
@@ -277,21 +290,25 @@ export default {
       }
     },
     toggleToc: function() {
-      if(this.tocOpen) {
-        this.tocOpen = false;
+      // Tried using a data attribute, but the width calculation 
+      // happened too soon, forcing the toc to its minimum size
+      if($('#toc').hasClass('expanded')) {
+        $('#toc').removeClass('expanded');
+        $('#bookContent').addClass('expanded');
       }
       else {
-        this.tocOpen = true;
+        $('#toc').addClass('expanded');
+        $('#bookContent').removeClass('expanded');
       }
       this.refreshBook();
     },
     closeModals: function() {
-      $("#modal-backdrop").css("display","none");
-      $(".modal").css("display","none");
+      $('#modal-backdrop').css('display','none');
+      $('.modal').css('display','none');
     },
     openFontModal: function() {
-      $("#modal-backdrop").css("display","block");
-      $("#fontModal").css("display","block");
+      $('#modal-backdrop').css('display','block');
+      $('#fontModal').css('display','block');
     }
   }
 }
@@ -315,6 +332,12 @@ export default {
     flex-basis: 20%;
     height: 100%;
     overflow-y: auto;
+  }
+  #toc #tocList {
+    display: none;
+  }
+  #toc.expanded #tocList {
+    display: block;
   }
   #toc .btn {
     padding: 5px 10px;
