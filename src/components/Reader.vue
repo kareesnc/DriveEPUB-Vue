@@ -7,12 +7,12 @@
           <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 013 11h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 7h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 3h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z" clip-rule="evenodd"/>
         </svg>
       </button>
-      <button class="btn" title="Save current location">
+      <button class="btn" @click.prevent="saveAppDataFile" title="Save current location" :disabled="disableSave">
         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bookmark" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" d="M8 12l5 3V3a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12l5-3zm-4 1.234l4-2.4 4 2.4V3a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10.234z"/>
         </svg>
       </button>
-      <button class="btn" title="Set font options">
+      <button class="btn" @click.prevent="openFontModal" title="Set font options">
         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-type" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path d="m2.244 13.081.943-2.803H6.66l.944 2.803H8.86L5.54 3.75H4.322L1 13.081h1.244zm2.7-7.923L6.34 9.314H3.51l1.4-4.156h.034zm9.146 7.027h.035v.896h1.128V8.125c0-1.51-1.114-2.345-2.646-2.345-1.736 0-2.59.916-2.666 2.174h1.108c.068-.718.595-1.19 1.517-1.19.971 0 1.518.52 1.518 1.464v.731H12.19c-1.647.007-2.522.8-2.522 2.058 0 1.319.957 2.18 2.345 2.18 1.06 0 1.716-.43 2.078-1.011zm-1.763.035c-.752 0-1.456-.397-1.456-1.244 0-.65.424-1.115 1.408-1.115h1.805v.834c0 .896-.752 1.525-1.757 1.525z"/>
         </svg>
@@ -45,7 +45,7 @@
     </div>
   </div>
   <div id="modal-backdrop">
-    <div class="modal">
+    <div id="fontModal" class="modal">
       <div class="modal-header">
         <button type="button" class="close">
           <span aria-hidden="true">&times;</span>
@@ -67,18 +67,20 @@
           <input type="text" />
         </div>
         <div class="form-group">
-          <label>Font size</label>
+          <label>Font size:</label>
           <input type="number" value="1.5" />
         </div>
         <div class="form-group">
-          <label>Line height</label>
+          <label>Line height:</label>
           <input type="number" value="1.5" />
         </div>
         <div class="form-group">
-          <label>Size type</label>
+          <label>Size type:</label>
           <label><input type="radio" name="sizeType" value="em" checked /> em</label>
           <label><input type="radio" name="sizeType" value="px" /> px</label>
         </div>
+      </div>
+      <div class="modal-footer">
         <button class="btn">Update font</button>
         <button class="btn">Clear font</button>
       </div>
@@ -97,8 +99,8 @@ export default {
     appData: Object
   },
   emits: [
-    // todo: app data on location change
-    //       font size - here? in another component?
+    'updateAppDataContent',
+    'saveAppDataFile'
   ],
   data () {
     return {
@@ -106,16 +108,15 @@ export default {
       rendition: null,
       tocList: null,
       rendered: false,
-      tocOpen: true,
+      tocOpen: false,
       fontOpen: false,
       disableLeft: true,
-      disableRight: true
+      disableRight: true,
+      disableSave: false
     }
   },
   mounted: function() {
     this.openBook();
-    // Automatically save location every minute (TODO)
-    //setInterval(updateBookAppData, 60000);
     const self = this;
     $(window).resize(function() {
       if(self.book) {
@@ -229,8 +230,18 @@ export default {
         this.disableLeft = location.atStart;
         this.disableRight = location.atEnd;
       }
-      // Store new location (TODO)
-      //this.appData.cfi = location.start.cfi;
+      // Store new location
+      this.updateAppDataContent('cfi',location.start.cfi);
+    },
+    updateAppDataContent: function(property,value) {
+      this.$emit('updateAppDataContent',property,value);
+    },
+    saveAppDataFile: function() {
+      this.disableSave = true;
+      this.$emit('saveAppDataFile');
+    },
+    enableSaveButton: function() {
+      this.disableSave = false;
     },
     applyFont: function() {
       if(this.appData && this.appData.fontFamily && this.appData.fontSize && this.appData.lineHeight) {
@@ -244,18 +255,15 @@ export default {
       }
     },
     setFont: function(family,size,lineHeight) {
-      console.log('set font: '+family+' '+size+' '+lineHeight);
-      // TODO
-      //this.appData.fontFamily = family;
-      //this.appData.fontSize = size;
-      //this.appData.lineHeight = lineHeight;
+      this.updateAppDataContent('fontFamily',family);
+      this.updateAppDataContent('fontSize',size);
+      this.updateAppDataContent('lineHeight',lineHeight);
       this.applyFont();
     },
     clearFont: function() {
-      // TODO
-      //this.appData.fontFamily = "";
-      //this.appData.fontSize = "";
-      //this.appData.lineHeight = "";
+      this.updateAppDataContent('fontFamily','');
+      this.updateAppDataContent('fontSize','');
+      this.updateAppDataContent('lineHeight','');
       this.refreshBook();
     },
     refreshBook: function() {
@@ -366,6 +374,9 @@ export default {
   .form-group {
     margin-bottom: 10px;
   }
+  .form-group label {
+    margin-right: 10px;
+  }
   #modal-backdrop {
     display: none;
     position: fixed;
@@ -396,6 +407,9 @@ export default {
   }
   .modal-body {
     padding: 15px;
+  }
+  .modal-footer {
+    margin-top: 15px;
   }
   .modal .btn {
     padding: 5px;

@@ -14,14 +14,17 @@
       Or, you can click the demo button to view a demo.
     </p>
   </div>
-  <DriveFile v-if="isSignedIn && docID" v-show="!bookData" 
+  <DriveFile v-if="isSignedIn && docID" v-show="!bookData" ref="driveHandle"
     :docID="docID" 
     :appData="appData" 
-    @fetched="recieveDriveBook" 
+    @fetched="recieveDriveBook"
+    @savedAppData="savedAppData"
   />
-  <Reader v-if="bookData" 
+  <Reader v-if="bookData" ref="readerHandle"
     :bookData="bookData" 
     :appData="appData" 
+    @updateAppDataContent="updateAppDataContent"
+    @saveAppDataFile="saveAppDataFile"
   />
 </template>
 
@@ -42,7 +45,7 @@ export default {
       isSignedIn: false,
       docID: null,
       bookData: null,
-      appData: null
+      appData: {}
     }
   },
   mounted: function() {
@@ -68,8 +71,26 @@ export default {
       oReq.send();
     },
     recieveDriveBook: function(bookData, appData) {
-      console.log(appData);
+      if(appData) {
+        this.appData = appData;
+      }
       this.bookData = bookData;
+    },
+    updateAppDataContent: function(property,value) {
+      this.appData[property] = value;
+    },
+    saveAppDataFile: function() {
+      if(this.$refs.driveHandle) {
+        this.$refs.driveHandle.updateAppData();
+      }
+      else {
+        console.warn('Could not save - drive not initialized.');
+      }
+    },
+    savedAppData: function() {
+      if(this.$refs.readerHandle) {
+        this.$refs.readerHandle.enableSaveButton();
+      }
     }
   }
 }

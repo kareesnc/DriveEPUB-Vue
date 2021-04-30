@@ -14,27 +14,13 @@ export default {
     appData: Object
   },
   emits: [
-    'fetched'
-    // todo: errors? emit or data()?
-    // todo: app data, but don't cause recursion
-    //       remember that app data can update elsewhere too
+    'fetched',
+    'savedAppData'
   ],
   data () {
     return {
       appData_docID: '',
       bookData: null,
-    }
-  },
-  watch: {
-    appData: {
-      deep: true,
-      handler(state) {
-        console.log('new appData');
-        console.log(state);
-        // todo: decide when to call updateAppData
-        // if on every update, must limit those updates elsewhere
-        // don't want to call this more than ~1/min
-      }
     }
   },
   created: function() {
@@ -44,8 +30,7 @@ export default {
     updateAppData: function() {
       // ensure app data doc ID and data exist
       const self = this;
-      if(self.appData_docID && self.appData && self.appData.cfi) {
-        console.log('Saving book app data...');
+      if(self.appData_docID && self.appData) {
         $.ajax({
           method: 'PATCH',
           url: 'https://www.googleapis.com/upload/drive/v3/files/' + self.appData_docID + '?uploadType=media',
@@ -55,7 +40,7 @@ export default {
           }
         })
         .done(function() {
-          console.log('Finished updating book app data');
+          self.$emit('savedAppData');
         })
         .fail(function(jqXHR, textStatus) {
           console.error('Failed to upload book app data. Status: '+textStatus);
@@ -67,7 +52,7 @@ export default {
       }
     },
     createAppData: function() {
-      var self = this;
+      const self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.create({
           name: self.docID+'.epubcfi',
@@ -90,7 +75,7 @@ export default {
       });
     },
     fetchAppData: function() {
-      var self = this;
+      const self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.get({
           fileId: self.appData_docID,
@@ -106,9 +91,9 @@ export default {
             }
           }
           else {
-            console.error('App data file not found, was empty, or was unknown format');
+            console.warn('App data file not found, was empty, or was unknown format');
             console.log(response);
-            reject();
+            resolve(null); // continue without app data
           }
         }, function (error) {
           console.error('An error occurred while fetching the book app data');
@@ -118,7 +103,7 @@ export default {
       });
     },
     getOrCreateAppData: function() {
-      var self = this;
+      const self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.list({
           q: "name: '"+self.docID+".epubcfi'",
@@ -153,7 +138,7 @@ export default {
       });
     },
     fetchDriveFile: function() {
-      var self = this;
+      const self = this;
       return new Promise((resolve, reject) => {
         gapi.client.drive.files.get({
           fileId: self.docID,
