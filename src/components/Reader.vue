@@ -1,6 +1,6 @@
 <template>
-  <h3 v-if="!rendered" style="margin-left: 2rem">Loading...</h3>
-  <div id="book" v-show="rendered">
+  <h3 v-if="!rendered" style="margin-left: 2rem; position: absolute;">Loading...</h3>
+  <div id="book" :class="{'rendered': rendered}">
     <div id="toc" :class="{'expanded': tocOpen}">
       <button class="btn" @click.prevent="toggleToc" title="Open table of contents">
         <svg class="bi bi-list" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -135,11 +135,8 @@ export default {
       this.book = ePub();
       this.book.open(this.bookData, "binary");
       // Set height/width of the viewer
-      //const width = document.getElementById("bookContent").offsetWidth-10; // ??? Chrome
-      //const height = document.getElementById("bookContent").offsetHeight-60; // save room for nav buttons
-      // TODO
-      const width = 1200;
-      const height = 800;
+      const width = document.getElementById("bookContent").offsetWidth-10; // ??? Chrome
+      const height = document.getElementById("bookContent").offsetHeight-60; // save room for nav buttons
       // Render book
       this.rendition = this.book.renderTo("viewer", {
         width: width+"px",
@@ -297,6 +294,10 @@ export default {
     height: 100%;
     display: flex;
     align-items: stretch;
+    opacity: 0;
+  }
+  #book.rendered {
+    opacity: 1;
   }
   #toc {
     width: 60px;
