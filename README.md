@@ -9,7 +9,7 @@ and api key in the .env file to enable access to your API.
   
 You can test the EPUB rendering portions locally, using the demo file setting in the .env file.  
 
-Users must manually visit the application home page and authorized it for the first time. 
+Users must manually visit the application home page and authorize it for the first time. 
 Afterwards, the application should show in the context menu of epub files.  
 
 Required OAuth scopes:  
