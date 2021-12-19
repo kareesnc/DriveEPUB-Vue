@@ -41,5 +41,10 @@ npm run build
 npm run lint
 ```
 
+### Audit for production only
+```
+npm audit --production
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
