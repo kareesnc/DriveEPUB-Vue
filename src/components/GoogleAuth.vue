@@ -15,8 +15,8 @@ export default {
   ],
   data () {
     return {
-      apiKey: process.env.VUE_APP_DRIVE_API_KEY,
-      clientId: process.env.VUE_APP_OAUTH_CLIENT_ID
+      apiKey: import.meta.env.VITE_DRIVE_API_KEY,
+      clientId: import.meta.env.VITE_OAUTH_CLIENT_ID
     }
   },
   created: function() {

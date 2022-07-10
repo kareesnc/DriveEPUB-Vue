@@ -65,7 +65,7 @@ export default {
     fetchDemoBook: function() {
       const self = this;
       var oReq = new XMLHttpRequest();
-      oReq.open('GET', process.env.VUE_APP_DEMO_FILE, true);
+      oReq.open('GET', import.meta.env.VITE_DEMO_FILE, true);
       oReq.responseType = 'arraybuffer';
       oReq.onload = function() {
         self.bookData = oReq.response;
