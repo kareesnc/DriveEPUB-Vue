@@ -89,7 +89,8 @@
 </template>
 
 <script>
-import $ from 'jquery'
+// tell eslint jquery is defined elsewhere
+/*global $*/
 import ePub from 'epubjs'
 
 export default {

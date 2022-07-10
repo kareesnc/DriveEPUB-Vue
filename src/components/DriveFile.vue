@@ -3,9 +3,9 @@
 </template>
 
 <script>
-// tell eslint that gapi is defined elsewhere
+// tell eslint that gapi and jquery are defined elsewhere
 /*global gapi*/
-import $ from 'jquery'
+/*global $*/
 
 export default {
   name: 'DriveFile',

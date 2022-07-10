@@ -1,4 +1,6 @@
 * investigate problems with bookmarking while using a custom font
+  related?  once I pressed the forward button and it skipped to the next chapter
+  it let me go back ok, but was that because it thought I was done? (all systems red, 1/2 settings)
 * fix book width being smaller on page load, but full size after opening/closing TOC
 * try to remove data from the URL params? that might be ok for drive-loaded files, but not demo files... which might be ok anyway
 * consider setting default font settings to 1/2em instead of 1.5/1.5
