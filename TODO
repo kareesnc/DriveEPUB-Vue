@@ -1,0 +1,4 @@
+* investigate problems with bookmarking while using a custom font
+* fix book width being smaller on page load, but full size after opening/closing TOC
+* try to remove data from the URL params? that might be ok for drive-loaded files, but not demo files... which might be ok anyway
+* consider setting default font settings to 1/2em instead of 1.5/1.5
